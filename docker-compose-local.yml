@@ -1,0 +1,58 @@
+version: '3'
+services:
+
+  caddy-vlieginfo:
+    image: caddy:2.0.0-rc.3-alpine # <== we aren't going to open :80 here because traefik is going to serve this on entrypoint 'proxy'
+    volumes:
+      - vlieginfo_code:/var/www:ro # <-- open readonly, so that only php-container can write to it
+      - caddy_vlieginfo_data:/data # <--- Volume for certificates see: https://github.com/abiosoft/caddy-docker
+      - caddy_vlieginfo_config:/config
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
+    #ports:
+    ## :80 is already exposed from within the container ##
+    ## :443 is already exposed from within the container ##
+      # - 80:80
+      # - 443:443
+    environment:
+      - SITE_ADDRESS=${APP_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.caddy-vlieginfo.entrypoints=web"
+      - "traefik.http.routers.caddy-vlieginfo.rule=Host(`vlieginfo.localhost`, `www.vlieginfo.com`)"
+      # - "traefik.http.routers.caddy-vlieginfoen-secured.entrypoints=web-secured" # <== Defining entrypoint for https
+      # global redirect to https
+      # - "traefik.http.routers.redirs-vlieginfoen.rule=hostregexp(`{host:.+}`)"
+      # - "traefik.http.routers.redirs-vlieginfoen.middlewares=redirect-to-https"
+      # - "traefik.http.routers.redirs-vlieginfoen.entrypoints=web"
+    networks:
+      - proxy
+      - internal
+
+  vlieginfo:
+    # indien klaar kopieren naar docker-compose-production
+    # dit in -local.yml versie
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    #image: registry.gitlab.com/tobyhage/vlieginfoen:latest
+    networks:
+      - internal
+    depends_on:
+      - caddy-vlieginfo
+    volumes:
+    # To give another container access to a container's volumes, we can provide the --volumes-from argument to docker run
+    # see: https://blog.container-solutions.com/understanding-volumes-docker
+      - vlieginfo_code:/var/www
+      - /home/toby/projects/vlieginfo-laravel/.env:/var/www/.env
+
+volumes:
+  caddy_vlieginfo_data:
+  caddy_vlieginfo_config:
+  vlieginfo_code: # <--- location: docker volume inspect vlieginfo_code
+    external: true # <--- see https://docs.docker.com/compose/compose-file/#external
+
+networks:
+  proxy:
+    external: true
+  internal:
+    external: false

@@ -58,25 +58,14 @@
                                     <source src="/img/blocks/blocks_3.mp4" type="video/mp4">
                                 </video>
                             </div>
-                            @if (SHOW_VAPOR)
-                                <div class="image">
-                                    <img src="/img/homepage/vapor.jpg" alt="Vapor">
-                                </div>
-                                <div class="content">
-                                    <h1>Laravel Vapor</h1>
-                                    <p>Laravel Vapor is a serverless deployment platform for Laravel, powered by AWS. Launch your Laravel infrastructure on Vapor and fall in love with the scalable simplicity of serverless.</p>
-                                    <a href="https://vapor.laravel.com" class="btn"><span>Learn More</span></a>
-                                </div>
-                            @else
-                                <div class="image">
-                                    <img src="/img/homepage/forge.jpg" alt="Forge">
-                                </div>
-                                <div class="content">
-                                    <h1>Laravel Forge</h1>
-                                    <p>Instant PHP Platforms on DigitalOcean, Linode, and more. Featuring push-to-deploy, Redis, queues, and everything else you could need to launch and deploy impressive Laravel applications.</p>
-                                    <a href="https://forge.laravel.com" class="btn"><span>Learn More</span></a>
-                                </div>
-                            @endif
+                            <div class="image">
+                                <img src="/img/homepage/forge.jpg" alt="Forge">
+                            </div>
+                            <div class="content">
+                                <h1>Laravel Forge</h1>
+                                <p>Instant PHP Platforms on DigitalOcean, Linode, and more. Featuring push-to-deploy, Redis, queues, and everything else you could need to launch and deploy impressive Laravel applications.</p>
+                                <a href="https://forge.laravel.com" class="btn"><span>Learn More</span></a>
+                            </div>
                         </div>
 
                         <div class="ecosystem_block">

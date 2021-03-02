@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+  # Deze folder kan per project in een docker folder gezet worden.
+  # Er is een gedocumenteerde nginx.conf aanwezig in folder nginx, deze wordt nu niet gebruikt.
+  # Is wellicht handig in de toekomst. Nu wordt https://github.com/jtreminio/php-docker/blob/master/files/nginx/nginx.conf gebruikt.
+
+  # Overzicht installed modules: https://github.com/jtreminio/php-docker#installed-modules
+  web:
+    # local dev
+    image: jtreminio/php-nginx:7.4 # <-- See: https://github.com/jtreminio/php-docker and https://jtreminio.com/
+    container_name: ${APP}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP}.rule=Host(`${HOST}`)"
+    networks:
+      - proxy
+      - internal
+    volumes:
+      - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER} # <-- This is for local development, dus uit in productie
+      #- your-file.ini:/etc/php/cli-custom.ini # <-- custom php ini settings for cli
+      #- your-file.ini:/etc/php/php-custom.ini # <-- custom php ini settings for fpm
+    environment:
+    # See all supported ini settings here: https://github.com/jtreminio/php-docker/blob/master/Dockerfile-env
+      - PHP.display_errors=On
+      - PHP.date.timezone=Europe/Amsterdam
+      - PHP.error_reporting=-1 # <-- 0 is turn off, -1 is E_ALL | E_STRICT, See also : https://www.php.net/manual/en/errorfunc.constants.php
+      - PHPFPM_XDEBUG=Off
+      - VHOST=laravel # <-- See: https://github.com/jtreminio/php-docker/blob/master/files/nginx/vhost/laravel.conf
+
+networks:
+  proxy:
+    external: true # <--- specifies that this volume has been created outside of Compose
+  internal:
+    external: false

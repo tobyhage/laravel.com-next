@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+
+  # Deze folder kan per project in een docker folder gezet worden.
+  # Er is een gedocumenteerde nginx.conf aanwezig in folder nginx, deze wordt nu niet gebruikt.
+  # Is wellicht handig in de toekomst. Nu wordt https://github.com/jtreminio/php-docker/blob/master/files/nginx/nginx.conf gebruikt.
+
+  # Overzicht installed modules: https://github.com/jtreminio/php-docker#installed-modules
+  web:
+    # production image
+    build:
+      context: ..
+      dockerfile: ./docker/multi-stage/Dockerfile
+    container_name: ${APP}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${APP}.rule=Host(`${HOST}`)"
+      - "traefik.http.routers.${APP}.entrypoints=web-secured" # <----- HTTPS
+      - "traefik.http.routers.${APP}.tls.certresolver=myresolver" # <----- HTTPS
+    networks:
+      - proxy
+      - internal
+    volumes:
+      - ${APP_CODE_PATH_HOST}/docker/nginx/vhost/laravel-custom.conf:/etc/nginx/sites-available/laravel-custom.conf #<-- use custom nginx vhost.conf
+      - ${APP_CODE_PATH_HOST}/.env:${APP_CODE_PATH_CONTAINER}/.env
+      #- your-file.ini:/etc/php/cli-custom.ini # <-- custom php ini settings for cli
+      #- your-file.ini:/etc/php/php-custom.ini # <-- custom php ini settings for fpm
+    environment:
+    # See all supported ini settings here: https://github.com/jtreminio/php-docker/blob/master/Dockerfile-env
+      - PHP_INI_SCAN_DIR=${PHP_INI_SCAN_DIR}
+      - PHP.display_errors=Off
+      - PHP.date.timezone=Europe/Amsterdam
+      - PHP.error_reporting=0 # <-- 0 is turn off, -1 is E_ALL | E_STRICT, See also : https://www.php.net/manual/en/errorfunc.constants.php
+      - PHPFPM_XDEBUG=Off
+      - VHOST=laravel # <-- See: https://github.com/jtreminio/php-docker/blob/master/files/nginx/vhost/laravel.conf
+
+networks:
+  proxy:
+    external: true # <--- specifies that this volume has been created outside of Compose
+  internal:
+    external: true

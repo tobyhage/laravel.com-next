@@ -1,0 +1,11 @@
+.git
+.vscode
+.gitignore
+.env
+vendor/
+docker-compose-local.yml
+docker-compose-production.yml
+node_modules
+public/js
+public/css
+yarn-error.log
